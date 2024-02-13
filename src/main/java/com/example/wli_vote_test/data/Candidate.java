@@ -4,6 +4,10 @@ import lombok.Getter;
 
 import java.util.Map;
 
+/**
+*    Candidate data
+*    Here and for Voter, lombok library was used (cuts down on boiler-plate code).
+*/
 @Getter
 public class Candidate {
 
