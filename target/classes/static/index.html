@@ -1,0 +1,190 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <script type="text/javascript"
+            src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+    <title>VoteApp - Wojciech Litwinowicz</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        td {
+            text-align: center;
+        }
+        th.name {
+            width: 60%;
+        }
+        table.center {
+            width: 95%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        div {
+            width: 45%;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <h2>Vote App</h2>
+    <div>
+        <dialog id="add_voter_dlg">
+            <label for="add_voter_name">Voter name:</label>
+            <input type="text" id="add_voter_name" name="add_voter_name"><br><br>
+            <button id="add_voter_cancel">Cancel</button>
+            <button id="add_voter_sub">Submit</button>
+        </dialog>
+        <button id="add_voter">Add voter</button>
+        <table class="center">
+            <tr>
+                <th colspan="2">
+                    Voters
+                </th>
+            </tr>
+            <tr>
+                <th class="name">Name</th>
+                <th>Has voted</th>
+            </tr>
+            <tbody id="voter_data">
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <dialog id="add_candidate_dlg">
+            <label for="add_candidate_name">Candidate name:</label>
+            <input type="text" id="add_candidate_name" name="add_candidate_name"><br><br>
+            <button id="add_candidate_cancel">Cancel</button>
+            <button id="add_candidate_sub">Submit</button>
+        </dialog>
+        <button id="add_candidate">Add candidate</button>
+        <table class="center">
+            <tr>
+                <th colspan="2">
+                    Candidates
+                </th>
+            </tr>
+            <tr>
+                <th class="name">Name</th>
+                <th>Vote count</th>
+            </tr>
+            <tbody id="candidate_data">
+            </tbody>
+        </table>
+    </div>
+<hr>
+    <h2>Vote!</h2>
+
+    <select name="voter_select" id="voter_select">
+        <option value="-1">I am</option>
+    </select>
+    <select name="candidate_select" id="candidate_select">
+        <option value="-1">I vote for</option>
+    </select>
+    <button id="cast_vote">Cast vote</button>
+
+    <script>
+        processVoters();
+        processCandidates();
+
+        $('#add_voter').click(function(){
+            document.getElementById('add_voter_dlg').showModal();
+        });
+        $('#add_voter_cancel').click(function(){
+            document.getElementById('add_voter_dlg').close();
+        });
+        $('#add_voter_sub').click(function(){
+            var newName = document.getElementById('add_voter_name').value;
+            var url = `http://localhost:8080/voters/add?name=${newName}`;
+            putAndReload(url);
+        });
+
+        $('#add_candidate').click(function(){
+            document.getElementById('add_candidate_dlg').showModal();
+        });
+        $('#add_candidate_cancel').click(function(){
+            document.getElementById('add_candidate_dlg').close();
+        });
+        $('#add_candidate_sub').click(function(){
+            var newName = document.getElementById('add_candidate_name').value;
+            var url = `http://localhost:8080/candidates/add?name=${newName}`;
+            putAndReload(url);
+        });
+
+        $('#cast_vote').click(function(){
+            var id = document.getElementById('voter_select').value;
+            var candidateId = document.getElementById('candidate_select').value;
+
+            var url = `http://localhost:8080/vote?id=${id}&candidateId=${candidateId}`;
+            console.log(url);
+            putAndReload(url);
+        });
+
+        async function processVoters(){
+            var voter_input = await get("http://localhost:8080/voters");
+            console.log(voter_input);
+
+            var voter_data = document.getElementById('voter_data');
+            var voter_select = document.getElementById('voter_select');
+
+            for(var i =0; i<voter_input.length; i++){
+                var voter = voter_input[i];
+
+                var row = `<tr><td>${voter.name}</td><td>${voter.voteCast}</td></tr>`;
+                voter_data.innerHTML += row;
+
+                var codedId = voter.id;
+                if (voter.voteCast) {
+                    codedId *= -1;
+                }
+                console.log(codedId);
+                var opt = `<option value="${codedId}">${voter.name}</option>`;
+                voter_select.innerHTML += opt;
+            }
+        }
+
+        async function processCandidates(){
+            var candidate_input = await get("http://localhost:8080/candidates");
+            console.log(candidate_input);
+
+            var candidate_data = document.getElementById('candidate_data');
+            var candidate_select = document.getElementById('candidate_select');
+
+            for(var i =0; i<candidate_input.length; i++){
+                var candidate = candidate_input[i];
+
+                var row = `<tr><td>${candidate.name}</td><td>${candidate.voteCount}</td></tr>`;
+                candidate_data.innerHTML += row;
+
+                var opt = `<option value="${candidate.id}">${candidate.name}</option>`;
+                candidate_select.innerHTML += opt;
+            }
+        }
+
+        async function get(url=""){
+            console.log(url);
+
+            const response = await fetch(url);
+            var result = await response.json();
+
+            return result;
+        }
+
+        async function putAndReload(url=""){
+            await fetch(url, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            location.reload();
+        }
+    </script>
+    <!-- $('#voter_select').change(function(){
+                 alert("XXX1");
+            });
+            $('#candidate_select').change(function(){
+                 alert("XXX2");
+                 document.getElementById('cast_vote').disabled = true;
+            }); -->
+</body>
+</html>
