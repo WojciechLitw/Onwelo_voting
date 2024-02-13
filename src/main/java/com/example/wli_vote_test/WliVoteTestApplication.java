@@ -3,6 +3,10 @@ package com.example.wli_vote_test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+*	Initializing mathod.
+*	Also presets some data for quick presentation and testing purposes.
+*/
 @SpringBootApplication
 public class WliVoteTestApplication {
 
