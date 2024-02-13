@@ -4,6 +4,9 @@ import lombok.Getter;
 
 import java.util.Map;
 
+/**
+*    Voter data.
+*/
 @Getter
 public class Voter {
 
@@ -19,6 +22,7 @@ public class Voter {
         storage.put(this.id, this);
     }
 
+    // This was added out of haste, never used in code.
     public Voter(long id, String name, boolean voteCast){
         this.id = id;
         this.name = name;
