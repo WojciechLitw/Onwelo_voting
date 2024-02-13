@@ -75,7 +75,7 @@
     </div>
 <hr>
     <h2>Vote!</h2>
-
+    
     <select name="voter_select" id="voter_select">
         <option value="-1">I am</option>
     </select>
@@ -85,9 +85,11 @@
     <button id="cast_vote">Cast vote</button>
 
     <script>
+        // call and process data from spring server
         processVoters();
         processCandidates();
 
+        // "voter add" dialog buttons handling 
         $('#add_voter').click(function(){
             document.getElementById('add_voter_dlg').showModal();
         });
@@ -100,6 +102,7 @@
             putAndReload(url);
         });
 
+        // "candidate add" dialog buttons handling
         $('#add_candidate').click(function(){
             document.getElementById('add_candidate_dlg').showModal();
         });
@@ -112,6 +115,7 @@
             putAndReload(url);
         });
 
+        // "cast vote" button
         $('#cast_vote').click(function(){
             var id = document.getElementById('voter_select').value;
             var candidateId = document.getElementById('candidate_select').value;
@@ -121,6 +125,8 @@
             putAndReload(url);
         });
 
+        // Voter data handler. Fills in both the table and dropdown.
+        // Due to the way it was intended to work (disable "cast vote" button when not ready), voter ID cannot be 0.
         async function processVoters(){
             var voter_input = await get("http://localhost:8080/voters");
             console.log(voter_input);
@@ -144,6 +150,7 @@
             }
         }
 
+        // Candidate data handler. Fills in both the table and dropdown.
         async function processCandidates(){
             var candidate_input = await get("http://localhost:8080/candidates");
             console.log(candidate_input);
@@ -162,6 +169,7 @@
             }
         }
 
+        // general GET trigger
         async function get(url=""){
             console.log(url);
 
@@ -171,6 +179,8 @@
             return result;
         }
 
+        // PUT trigger with automatic page reload.
+        // Maybe should have made it update only selected objects...
         async function putAndReload(url=""){
             await fetch(url, {
                 method: 'PUT',
@@ -179,12 +189,5 @@
             location.reload();
         }
     </script>
-    <!-- $('#voter_select').change(function(){
-                 alert("XXX1");
-            });
-            $('#candidate_select').change(function(){
-                 alert("XXX2");
-                 document.getElementById('cast_vote').disabled = true;
-            }); -->
 </body>
 </html>
